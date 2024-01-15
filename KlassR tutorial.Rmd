@@ -1,0 +1,194 @@
+---
+title: "Tutorial om klassR"
+output: 
+  learnr::tutorial:
+      progressive: true
+      allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(shiny)
+library(klassR)
+GetKlass <- klassR::GetKlass
+ListKlass <- klassR::ListKlass
+SearchKlass <- klassR::SearchKlass
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## 1. Introduksjon
+Har du et datasett med masse koder for næeringsområde som du vet ikke hva de står for? Eller har komune nummer på en fil men egentlig ønsker landsdel? Kanskje du ønsker å lage en plott med engelsk navn for yrke? Da kan det lønner seg å bruker **klassR**
+
+SSBs Klass er en sentral database av klassifikasjoner og kodeliste. Det er bygd en API som gjøre det lettere å koble opp mot disse klassifikasjoner og kodelister og hente dem til forsekjllige miljø. I R er pakken klassR laget for å lett hente ut disse klassifikasjoner.
+
+Denne pakken er installert på R i SSB, men hvis du jobber på din egen PC kan du installere pakken fra CRAN ved å kjøre koden `install.packages("klassR")`. 
+
+CRAN er R's sentrale repository hvor det finnes mange nyttige pakker fra hele verden. Du kan finne klassR på CRAN i tillegg til ekstra hjelp her:
+<https://cran.r-project.org/web/packages/klassR/index.html>
+
+For å ta i bruk funksjoner i pakken, må du laste inn pakken til R-miljøet hver gang du starter en ny sesjon i R. Dette gjøres ved `library()` funksjonen. 
+
+```{r echo = TRUE}
+library(klassR)
+
+```
+
+## 2. Finne klassifikasjoner
+###
+For å hente en klassifikajon, trenger du å vite klassifikasjonsnumer. Hver klassifikasjon/kodeliste har en unik nummer i Klass databasen. For å finne klassifikasjonsnummer kan du browse på klass database her: <https://www.ssb.no/klass/>. 
+
+![](https://vimeo.com/445539037)
+
+### Skriv ut en liste av alle klassifiseringer
+Et alternativ er å bruke funksjon `ListKlass` for å liste opp alle tilgjengelig klassifikasjoner i R. Funksjonen returneres en liste med klassifikasjoners navn (`klass_name`), nummer (`klass_nr`), hvilke familie/hovedområde det finnes på (`klass_family`) og om det er en klassifikasjon eller kodeliste (`klass_type`).
+
+```{r list-klass, exercise=FALSE, echo = T}
+klass_alle <- ListKlass()
+head(klass_alle)
+
+```
+
+
+### Inkludere kodelister
+For å inkludere kodelister, bruk parameter `codelists = TRUE`.
+
+```{r list-klass2, exercise=FALSE, echo = T}
+codelist_klass <- ListKlass(codelists = TRUE)
+head(codelist_klass)
+```
+
+
+### Søke etter klassifiseringer
+Det er også mulig å søke etter en klassifikasjon fra R miljø. Her bruker vi funksjon ´SearchKlass´ for å søke. Første parameter i funksjonen er query for å søke om.
+
+```{r søke-klass, exercise=FALSE, echo = T}
+SearchKlass(query = "ARENA")
+
+```
+
+###
+For å søke blant kodelister må du spesifisere `codelists = TRUE`.
+```{r søke-codelist, exercise=FALSE, echo = T}
+SearchKlass(query = "ARENA", codelists = TRUE)
+```
+
+###
+Ofte kommer det two Standarder per klassifikasjon. Dette er fordi det er en på bokmål og en på nynorsk. De vil ha det samme klassifiseringsnummer. Du kan søke på bokmål, nynorsk eller engelsk. 
+
+
+### Øvelser 
+Finn ut hvilke klassifiseringsnummer å bruke for å hente ut Standard for kommuneinndeling.
+
+```{r kommune-find, exercise=TRUE, exercise.lines = 5}
+
+```
+
+```{r kommune-find-hint}
+SearchKlass(query = "kommuneinndeling")
+```
+
+###
+Hvilken klassifikasjons nummer skal du bruke for å hente klassifikasjoner av arbeidsforholdstype?
+```{r arbeid-find, exercise=TRUE, exercise.lines = 5}
+
+
+```
+
+```{r arbeid-find-hint}
+SearchKlass(query = "arbeidsforholdtype", codelists = TRUE)
+```
+
+
+## 3. Hente klassifikasjoner
+###
+For å hente ut selve klassifikasjon bruker vi funksjonen `GetKlass` sammen med klassifikasjonsnumer. Her er et eksempel på hvordan å hente ut Standard for næringsgrupper (klass nummer 6)
+
+```{r naering-hent1, exercise=FALSE, echo = TRUE}
+GetKlass(6)
+```
+
+### Nivå
+I dette eksempel har tabellen for næringgrupper forskjellige nivå. Standard er grupert på et heirakisk måte. Om du ønsker å hente ut kode for et spesifikk nivå, kan du spesifisere dette ved `output_level`parameter. For eksempel å hente ut hovednæringsområdet
+
+```{r naering-hent2, exercise=FALSE, echo = TRUE}
+GetKlass(6, output_level = 1)
+
+```
+
+### Språk
+Ovenfor er eksempler hvor standard er hentet ut med bokmål navn (ser kolon 5). Vi kan spesifisere hvilket språk vi ønsker ved `language` parameter. Bokmål  er spesifisert som "nb", nynorsk er "nn" og engelsk er "en".  
+
+```{r naering-hent3, exercise=FALSE, echo = TRUE}
+GetKlass(6, output_level = 1, language = "en")
+
+```
+
+Ikke alle standard er tilgjengelig i alle tre språk.
+
+### Øvelse
+Hent Standard for utdanningsgruppering (NUS) på engelsk (klass nummer 36).
+```{r utdan-hent, exercise=TRUE, lines = 5}
+
+```
+
+```{r utdan-hent-solution}
+GetKlass(36, language = "en")
+
+```
+
+
+
+## 4. Dato
+###
+Klassifikasjoner kan endre gjennom tid. Klass databasen ta hensyn til dette og du kan spesifisere en dato som gjelder for klassifiseringen. 
+
+### Spesifisere dato
+Datoene har form "yyyy-mm-dd" og brukes ved parameter `date` i `GetKlass` funksjon. 
+
+Fylkeinndeling har endret seg fra 1. januar 2020. Har er et eksempel på hvordan å hente fylkeinndeling på to forsekjllige tidspunkter
+
+```{r dato-hent, exercise=FALSE, echo = TRUE}
+GetKlass(104, date = "2019-01-01")
+GetKlass(104, date = "2020-01-01")
+
+```
+
+### Tidsinterval
+Det er også mulig å hente ut alle code i en tidsperiod. Dette gjøres ved å spesifiere to datoer som gi tidsinterval, som en vector. 
+Følgende kode hentes ut alle fylke kode som var i bruk mellom 1. januar 2019 til 1. januar 2020. Det er nå 26 forsekjllige kode som vises at både gamle og de nye kodenen er med på listen.
+
+```{r dato-hent2, exercise=FALSE, echo = TRUE}
+GetKlass(104, date = c("2019-01-01", "2020-01-01"))
+
+```
+
+### Endringer over tid
+Det er også mulig å hente ut endringer til standarder over tid. Spesifierer to dato som en vector for å hente endringer.
+
+Det som returneres er en datasett med første koden og navn (sourceCode og sourceName) and endret code (targetCode) og navn (targetName).
+
+```{r dato-endring-hent, exercise = FALSE, echo = TRUE}
+GetKlass(104, date = c("2020-01-01", "2019-01-01"), correspond = TRUE)
+
+```
+
+
+
+### Øvelser
+Hent Standard for kommuneinndeling (klass nummer 131) som gjelder for begynnelsen av året 2015.
+
+```{r dato-exercise, exercise = TRUE, lines = 5}
+
+
+```
+
+```{r dato-exercise-solution}
+GetKlass(131, date = "2015-01-01")
+
+```
+
+
+
