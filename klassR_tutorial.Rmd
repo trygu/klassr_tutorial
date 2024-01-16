@@ -107,7 +107,7 @@ SearchKlass(query = "arbeidsforholdtype", codelists = TRUE)
 For å hente ut selve klassifikasjon bruker vi funksjonen `GetKlass` sammen med klassifikasjonsnumer. Her er et eksempel på hvordan å hente ut Standard for næringsgrupper (klass nummer 6)
 
 ```{r naering-hent1, exercise=FALSE, echo = TRUE}
-GetKlass(6)
+GetKlass(6,quiet=FALSE)
 ```
 
 ### Nivå
