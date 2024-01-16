@@ -20,11 +20,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Extract tag name
-        id: tag_name
-        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/tags/})"
-        if: startsWith(github.ref, 'refs/tags/')
-
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v2
         with:
@@ -34,4 +29,3 @@ jobs:
           tags: |
             trygu/klassr_tutorial:latest
             trygu/klassr_tutorial:${{ github.sha }}
-            trygu/klassr_tutorial:${{ steps.tag_name.outputs.tag }}
