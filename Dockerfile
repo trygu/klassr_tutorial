@@ -1,6 +1,12 @@
 # Use an official R image
 FROM rocker/tidyverse:latest
 
+# Install X11 libraries
+RUN apt-get update && apt-get install -y \
+    libxt6 libxtst6
+
+RUN ln -s /usr/local/lib/R/lib/libR.so /lib/x86_64-linux-gnu/libR.so
+
 # Install required R packages
 RUN R -e "install.packages(c('shiny', 'learnr', 'rmarkdown', 'klassR'), repos='http://cran.rstudio.com/')"
 
