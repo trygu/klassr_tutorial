@@ -32,6 +32,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            trygu/klassR_tutorial:latest
-            trygu/klassR_tutorial:${{ github.sha }}
-            trygu/klassR_tutorial:${{ steps.tag_name.outputs.tag }}
+            trygu/klassr_tutorial:latest
+            trygu/klassr_tutorial:${{ github.sha }}
+            trygu/klassr_tutorial:${{ steps.tag_name.outputs.tag }}
